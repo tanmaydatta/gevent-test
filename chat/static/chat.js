@@ -1,11 +1,12 @@
-var socket = io.connect("/chat");
+var socket = io.connect("/socket_chat");
 socket.on('connect', function () {
     alert('connected');
     $('#chat').addClass('connected');
 });  
 // socket.emit('join', 'tanmay'); 
 socket.on('test', function (msg) {
-    $('#response').html(msg);
+	console.log(msg);
+    $('#response').html(msg['msg']);
     alert('test');
 });
 // alert('hello');
@@ -16,5 +17,6 @@ $('#login').submit(function(event){
 
 $('#msg').submit(function(event){
 	event.preventDefault();
-	socket.emit('msg',$('#message').val());
+	// socket.emit('msg',{'ms':$('#message').val(),'mg':'test'});
+	socket.emit('msg',$('#message').val(),'test');
 });

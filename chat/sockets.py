@@ -3,7 +3,7 @@ from socketio.mixins import RoomsMixin, BroadcastMixin
 from socketio.sdjango import namespace
 import pdb
 
-@namespace('/chat')
+@namespace('/socket_chat')
 class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
     nicknames = []
 
@@ -15,6 +15,7 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
         # self.room = room
         # self.join(room)
         self.emit('test', 'hello ' + name)
+
         # pkt = dict(type="event",
                    # name='test',
                    # args='hello',
@@ -29,6 +30,9 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
         # self.log('Nickname: {0}'.format(nickname))
         self.nicknames.append(nickname)
         self.socket.session['nickname'] = nickname
+        for sessid, socket in self.socket.server.sockets.iteritems():
+            print socket.session
+        # print self.socket.session
         # self.broadcast_event('announcement', '%s has connected' % nickname)
         # self.broadcast_event('nicknames', self.nicknames)
         return True, nickname
@@ -43,9 +47,29 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
         self.disconnect(silent=True)
         return True
 
-    def on_msg(self, msg):
+    def on_msg(self, msg, *args):
         # self.log('User message: {0}'.format(msg))
-        self.broadcast_event('test',self.socket.session['nickname'] +':' +msg);
+        # print 'hello'
+        # for sessid, socket in self.socket.server.sockets.iteritems():
+            # socket.send_packet(pkt)
+        # self.broadcast_event('test', msg)
+        # args = msg
+        # pdb.set_trace()
+        to = args[0]
+        arg = [{'msg':msg,'user':self.socket.session['nickname']},self.socket.session['nickname']]
+        arg = tuple(arg)
+        print arg
+        pkt = dict(type="event",
+               name='test',
+               args=arg,
+               endpoint=self.ns_name)
+        for sessid, socket in self.socket.server.sockets.iteritems():
+            if to == socket.session['nickname']:
+                socket.send_packet(pkt)
+                # break
+        print 'done'
+        # print msg
+        # self.emit('test',self.socket.session['nickname'] +':' +msg);
         return True
 
 def socketio_service(request):

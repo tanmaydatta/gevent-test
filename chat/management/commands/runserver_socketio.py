@@ -11,9 +11,12 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.management.commands.runserver import naiveip_re, DEFAULT_PORT
 from django.utils.autoreload import code_changed, restart_with_reloader
 from socketio.server import SocketIOServer
-
+import sys
 
 RELOAD = False
+
+# PORT = sys.argv[2]
+# print PORT
 
 def reload_watcher():
     global RELOAD
@@ -29,7 +32,7 @@ class Command(BaseCommand):
 
         if not addrport:
             self.addr = ''
-            self.port = DEFAULT_PORT
+            self.port = 4444
         else:
             m = match(naiveip_re, addrport)
             if m is None:
